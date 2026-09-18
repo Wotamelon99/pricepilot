@@ -1,0 +1,158 @@
+:root {
+  color-scheme: light dark;
+  --bg: #ffffff;
+  --fg: #1a1a1a;
+  --muted: #6b7280;
+  --border: rgba(0, 0, 0, 0.1);
+  --accent: #2563eb;
+  --surface: #f8fafc;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f172a;
+    --fg: #e5e7eb;
+    --muted: #9ca3af;
+    --border: rgba(255, 255, 255, 0.1);
+    --surface: #1f2937;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.pp-options {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 32px 24px 64px;
+}
+
+.pp-options h1 {
+  font-size: 22px;
+  margin-bottom: 4px;
+}
+
+.pp-options .pp-subtitle {
+  color: var(--muted);
+  margin-top: 0;
+  margin-bottom: 28px;
+}
+
+.pp-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px 20px;
+  margin-bottom: 20px;
+}
+
+.pp-card h2 {
+  font-size: 15px;
+  margin: 0 0 12px;
+}
+
+.pp-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.pp-row:last-child {
+  border-bottom: none;
+}
+
+.pp-row-label {
+  font-size: 14px;
+}
+
+.pp-row-hint {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.pp-merchant-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+button.pp-danger {
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+button.pp-danger:hover {
+  background: #fee2e2;
+}
+
+.pp-status {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 8px;
+  min-height: 16px;
+}
+
+input[type="text"],
+select {
+  font-size: 13px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--fg);
+  min-width: 220px;
+}
+
+a {
+  color: var(--accent);
+}
+
+input[type="checkbox"].pp-switch {
+  appearance: none;
+  width: 34px;
+  height: 20px;
+  border-radius: 999px;
+  background: var(--border);
+  position: relative;
+  cursor: pointer;
+  outline: none;
+  flex-shrink: 0;
+  transition: background 150ms ease;
+}
+
+input[type="checkbox"].pp-switch:checked {
+  background: var(--accent);
+}
+
+input[type="checkbox"].pp-switch::before {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 150ms ease;
+}
+
+input[type="checkbox"].pp-switch:checked::before {
+  transform: translateX(14px);
+}

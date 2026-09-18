@@ -1,0 +1,185 @@
+:root {
+  color-scheme: light dark;
+  --bg: #ffffff;
+  --fg: #1a1a1a;
+  --muted: #6b7280;
+  --border: rgba(0, 0, 0, 0.08);
+  --accent: #2563eb;
+  --accent-fg: #ffffff;
+  --success: #15803d;
+  --danger: #b91c1c;
+  --surface: #f8fafc;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #111827;
+    --fg: #e5e7eb;
+    --muted: #9ca3af;
+    --border: rgba(255, 255, 255, 0.08);
+    --surface: #1f2937;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  width: 360px;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+}
+
+.pp-app {
+  display: flex;
+  flex-direction: column;
+}
+
+.pp-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #fff;
+}
+
+.pp-topbar h1 {
+  font-size: 16px;
+  margin: 0;
+}
+
+.pp-section {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.pp-section:last-child {
+  border-bottom: none;
+}
+
+.pp-section h2 {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  margin: 0 0 8px;
+}
+
+.pp-product-title {
+  font-size: 13px;
+  font-weight: 600;
+  margin: 0 0 8px;
+  line-height: 1.3;
+}
+
+.pp-offer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--surface);
+  text-decoration: none;
+  color: inherit;
+  margin-bottom: 6px;
+}
+
+.pp-offer-row .merchant {
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.pp-offer-row .price {
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.pp-offer-row.best .price {
+  color: var(--success);
+}
+
+.pp-muted {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.pp-error {
+  color: var(--danger);
+  font-size: 13px;
+}
+
+.pp-history-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 12px;
+  color: var(--muted);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pp-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 0;
+  font-size: 13px;
+}
+
+.pp-select {
+  font-size: 13px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--fg);
+}
+
+.pp-footer {
+  padding: 10px 16px;
+  font-size: 11px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.pp-footer a {
+  color: var(--accent);
+}
+
+input[type="checkbox"].pp-switch {
+  appearance: none;
+  width: 34px;
+  height: 20px;
+  border-radius: 999px;
+  background: var(--border);
+  position: relative;
+  cursor: pointer;
+  outline: none;
+  transition: background 150ms ease;
+}
+
+input[type="checkbox"].pp-switch:checked {
+  background: var(--accent);
+}
+
+input[type="checkbox"].pp-switch::before {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 150ms ease;
+}
+
+input[type="checkbox"].pp-switch:checked::before {
+  transform: translateX(14px);
+}

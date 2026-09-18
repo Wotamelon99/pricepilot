@@ -1,0 +1,30 @@
+{
+  "name": "pricepilot",
+  "private": true,
+  "version": "0.1.0",
+  "description": "PricePilot - free Chrome price-comparison extension for Germany/EU with affiliate monetization",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "build:backend": "npm run build --workspace=@pricepilot/backend",
+    "build:extension": "npm run build --workspace=@pricepilot/extension",
+    "dev": "npm run dev --workspace=@pricepilot/backend",
+    "dev:extension": "npm run dev --workspace=@pricepilot/extension",
+    "test": "npm run test --workspaces --if-present",
+    "test:backend": "npm run test --workspace=@pricepilot/backend",
+    "test:extension": "npm run test --workspace=@pricepilot/extension",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "typecheck:backend": "npm run typecheck --workspace=@pricepilot/backend",
+    "typecheck:extension": "npm run typecheck --workspace=@pricepilot/extension",
+    "migrate": "npm run migrate --workspace=@pricepilot/backend"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "allowScripts": {
+    "esbuild@0.28.2": true,
+    "esbuild@0.21.5": true
+  }
+}
