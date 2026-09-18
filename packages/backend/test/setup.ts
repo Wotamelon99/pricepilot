@@ -9,8 +9,8 @@
  * never throws for a missing-but-optional-in-tests variable.
  *
  * These are the same non-secret values documented in `.env.example` -
- * nothing sensitive is hardcoded here. Real secrets (AMAZON_ACCESS_KEY,
- * AMAZON_SECRET_KEY, AWIN_API_TOKEN) are intentionally left unset so
+ * nothing sensitive is hardcoded here. Real secrets (AMAZON_CREDENTIAL_ID,
+ * AMAZON_CREDENTIAL_SECRET, AWIN_API_TOKEN) are intentionally left unset so
  * provider `isConfigured()` still reports CONFIGURATION_REQUIRED in tests
  * unless a test explicitly opts in.
  */
@@ -30,10 +30,9 @@ process.env.PUBLIC_BASE_URL ??= "http://localhost:3000";
 
 // Active affiliate IDs (see project spec) - required (non-optional) by
 // config/env.ts, so tests must always have a fallback even without .env.
-process.env.AMAZON_PARTNER_TAG ??= "pricepilot0b7-21";
+process.env.AMAZON_PARTNER_TAG ??= "pricepilot051-20";
 process.env.AMAZON_MARKETPLACE ??= "www.amazon.de";
-process.env.AMAZON_REGION ??= "eu-west-1";
-process.env.AMAZON_HOST ??= "webservices.amazon.de";
+process.env.AMAZON_CREATORS_API_HOST ??= "creatorsapi.amazon";
 
 process.env.AWIN_PUBLISHER_ID ??= "3099235";
 process.env.AWIN_REGION ??= "DE";

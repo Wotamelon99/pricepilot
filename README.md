@@ -55,11 +55,11 @@ cp .env.example .env
 `.env.example` already lists the active affiliate IDs used in this project:
 
 ```
-AMAZON_PARTNER_TAG=pricepilot0b7-21
+AMAZON_PARTNER_TAG=pricepilot051-20
 AWIN_PUBLISHER_ID=3099235
 ```
 
-Amazon PA-API and Awin API secrets (access keys, tokens) are **not** included — those are added by whoever owns the credentials and are never committed.
+Amazon Creators API and Awin API secrets (credential ID/secret, API token) are **not** included — those are added by whoever owns the credentials and are never committed.
 
 ### 2. Run with Docker Compose (recommended)
 

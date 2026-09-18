@@ -27,7 +27,7 @@ describe("AmazonProvider.generateAffiliateUrl", () => {
     const provider = new AmazonProvider();
     const url = provider.generateAffiliateUrl(makeOffer("https://www.amazon.de/dp/B0TEST12345"));
     const parsed = new URL(url);
-    expect(parsed.searchParams.get("tag")).toBe("pricepilot0b7-21");
+    expect(parsed.searchParams.get("tag")).toBe("pricepilot051-20");
     expect(parsed.hostname).toBe("www.amazon.de");
   });
 });
