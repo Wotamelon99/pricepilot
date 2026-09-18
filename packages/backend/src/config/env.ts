@@ -39,11 +39,15 @@ function boolWithDefault(name: string, defaultValue: boolean): boolean {
 export interface AmazonConfig {
   readonly partnerTag: string;
   readonly marketplace: string;
-  readonly accessKey: string | undefined;
-  readonly secretKey: string | undefined;
-  readonly region: string;
-  readonly host: string;
-  /** True only when the credentials needed to call PA-API are present. */
+  // Amazon retired PA-API 5.0 (which used an AWS-style access/secret key
+  // pair) in favor of the OAuth2-based "Creators API". These are that
+  // API's Credential ID / Credential Secret, generated separately at
+  // https://affiliate-program.amazon.com/creatorsapi - NOT the same thing
+  // as an AWS IAM key pair, even though the field names are similar.
+  readonly credentialId: string | undefined;
+  readonly credentialSecret: string | undefined;
+  readonly apiHost: string;
+  /** True only when the credentials needed to call the Creators API are present. */
   readonly isConfigured: boolean;
 }
 
@@ -51,6 +55,11 @@ export interface AwinConfig {
   readonly publisherId: string;
   readonly apiToken: string | undefined;
   readonly region: string;
+  // Host for the classic "productdata.awin.com" datafeed list/download
+  // endpoints used by the feed-sync job (src/scripts/sync-awin-feeds.ts).
+  // Awin has no live cross-advertiser search API - product data only
+  // becomes queryable locally after a feed sync has imported it.
+  readonly productDataHost: string;
   readonly isConfigured: boolean;
 }
 
@@ -75,8 +84,14 @@ function loadConfig(): AppConfig {
   const nodeEnv: AppConfig["nodeEnv"] =
     nodeEnvRaw === "production" || nodeEnvRaw === "test" ? nodeEnvRaw : "development";
 
-  const amazonAccessKey = optionalString("AMAZON_ACCESS_KEY");
-  const amazonSecretKey = optionalString("AMAZON_SECRET_KEY");
+  // Fall back to the old AMAZON_ACCESS_KEY/AMAZON_SECRET_KEY names for
+  // anyone who already set those (from the retired PA-API setup) so
+  // switching to the Creators API doesn't silently drop configuration -
+  // but AMAZON_CREDENTIAL_ID/AMAZON_CREDENTIAL_SECRET are the names to use.
+  const amazonCredentialId =
+    optionalString("AMAZON_CREDENTIAL_ID") ?? optionalString("AMAZON_ACCESS_KEY");
+  const amazonCredentialSecret =
+    optionalString("AMAZON_CREDENTIAL_SECRET") ?? optionalString("AMAZON_SECRET_KEY");
   const amazonPartnerTag = requireString("AMAZON_PARTNER_TAG");
 
   const awinPublisherId = requireString("AWIN_PUBLISHER_ID");
@@ -100,16 +115,16 @@ function loadConfig(): AppConfig {
     amazon: {
       partnerTag: amazonPartnerTag,
       marketplace: process.env["AMAZON_MARKETPLACE"] ?? "www.amazon.de",
-      accessKey: amazonAccessKey,
-      secretKey: amazonSecretKey,
-      region: process.env["AMAZON_REGION"] ?? "eu-west-1",
-      host: process.env["AMAZON_HOST"] ?? "webservices.amazon.de",
-      isConfigured: Boolean(amazonAccessKey && amazonSecretKey && amazonPartnerTag),
+      credentialId: amazonCredentialId,
+      credentialSecret: amazonCredentialSecret,
+      apiHost: process.env["AMAZON_CREATORS_API_HOST"] ?? "creatorsapi.amazon",
+      isConfigured: Boolean(amazonCredentialId && amazonCredentialSecret && amazonPartnerTag),
     },
     awin: {
       publisherId: awinPublisherId,
       apiToken: awinApiToken,
       region: process.env["AWIN_REGION"] ?? "DE",
+      productDataHost: process.env["AWIN_PRODUCTDATA_HOST"] ?? "productdata.awin.com",
       isConfigured: Boolean(awinApiToken && awinPublisherId),
     },
   };

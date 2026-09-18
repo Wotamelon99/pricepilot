@@ -23,7 +23,7 @@ function formatMoney(money: Money): string {
 
 export function Overlay({ product, onClose }: OverlayProps): JSX.Element | null {
   const [state, setState] = useState<LoadState>({ status: "loading" });
-  const [backendBaseUrl, setBackendBaseUrl] = useState<string>("http://localhost:3000");
+  const [backendBaseUrl, setBackendBaseUrl] = useState<string>("https://pricepilot-r9y2.onrender.com");
 
   useEffect(() => {
     let cancelled = false;

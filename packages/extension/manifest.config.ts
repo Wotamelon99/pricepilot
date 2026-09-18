@@ -18,12 +18,11 @@ const MERCHANT_MATCHES = [
   "https://www.saturn.de/*",
 ];
 
-// The backend origins the background service worker is allowed to call.
-// PUBLIC_BACKEND_ORIGIN can be overridden at build time (see vite.config.ts)
-// to point production builds at a deployed backend instead of localhost.
+// The backend origins the background service worker is allowed to call:
+// localhost for local dev, the deployed Render backend for production.
 const BACKEND_HOST_PERMISSIONS = [
   "http://localhost:3000/*",
-  "https://api.pricepilot.example/*", // placeholder for the production backend
+  "https://pricepilot-r9y2.onrender.com/*",
 ];
 
 export default defineManifest({

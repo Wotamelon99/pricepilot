@@ -11,7 +11,8 @@
     "typecheck": "tsc -p tsconfig.json",
     "test": "vitest run",
     "test:watch": "vitest",
-    "migrate": "tsx src/db/migrate.ts"
+    "migrate": "tsx src/db/migrate.ts",
+    "sync:awin": "tsx src/scripts/sync-awin-feeds.ts"
   },
   "dependencies": {
     "@fastify/rate-limit": "^10.2.1",

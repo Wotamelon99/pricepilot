@@ -18,7 +18,7 @@ export const DEFAULT_SETTINGS: PricePilotSettings = {
   overlayEnabled: true,
   theme: "system",
   enabledMerchants: DEFAULT_MERCHANTS,
-  backendBaseUrl: "http://localhost:3000",
+  backendBaseUrl: "https://pricepilot-r9y2.onrender.com",
 };
 
 const STORAGE_KEY = "pricepilot:settings";
