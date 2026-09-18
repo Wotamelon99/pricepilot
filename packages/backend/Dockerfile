@@ -14,8 +14,11 @@ RUN npm run build --workspace=@pricepilot/backend
 FROM node:22-slim AS runtime
 WORKDIR /app
 ENV NODE_ENV=production
+# npm workspaces hoist shared dependencies into the root node_modules -
+# there is no separate packages/backend/node_modules to copy (that COPY
+# used to fail the build with "not found" once actually built on a real
+# Docker host, since it was never exercised until deploying to Render).
 COPY --from=build /app/node_modules ./node_modules
-COPY --from=build /app/packages/backend/node_modules ./packages/backend/node_modules
 COPY --from=build /app/packages/backend/dist ./packages/backend/dist
 COPY --from=build /app/packages/backend/src/db/migrations ./packages/backend/dist/db/migrations
 COPY --from=build /app/packages/backend/package.json ./packages/backend/package.json
