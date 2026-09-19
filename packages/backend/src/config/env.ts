@@ -64,6 +64,23 @@ export interface AwinConfig {
   readonly isConfigured: boolean;
 }
 
+export interface DaisyconConfig {
+  readonly publisherId: string | undefined;
+  readonly mediaId: string | undefined;
+  // OAuth2 (Authorization Code + PKCE) app credentials from a Developer
+  // Account under Tools > Daisycon API in the Daisycon publisher UI - see
+  // src/lib/daisycon-oauth.ts. Unlike Awin's single static bearer token,
+  // Daisycon requires a one-time interactive browser login (via
+  // /admin/daisycon/authorize) to obtain a long-lived refresh token, which
+  // is then exchanged for short-lived access tokens automatically.
+  readonly clientId: string | undefined;
+  readonly clientSecret: string | undefined;
+  readonly redirectUri: string;
+  /** Long-lived; obtained once via the /admin/daisycon/authorize -> /oauth/daisycon/callback flow and then stored here. */
+  readonly refreshToken: string | undefined;
+  readonly isConfigured: boolean;
+}
+
 export interface AppConfig {
   readonly nodeEnv: "development" | "production" | "test";
   readonly port: number;
@@ -78,6 +95,7 @@ export interface AppConfig {
   readonly demoProviderEnabled: boolean;
   readonly amazon: AmazonConfig;
   readonly awin: AwinConfig;
+  readonly daisycon: DaisyconConfig;
 }
 
 function loadConfig(): AppConfig {
@@ -97,6 +115,10 @@ function loadConfig(): AppConfig {
 
   const awinPublisherId = requireString("AWIN_PUBLISHER_ID");
   const awinApiToken = optionalString("AWIN_API_TOKEN");
+
+  const daisyconClientId = optionalString("DAISYCON_CLIENT_ID");
+  const daisyconClientSecret = optionalString("DAISYCON_CLIENT_SECRET");
+  const daisyconRefreshToken = optionalString("DAISYCON_REFRESH_TOKEN");
 
   return {
     nodeEnv,
@@ -126,6 +148,17 @@ function loadConfig(): AppConfig {
       apiToken: awinApiToken,
       region: process.env["AWIN_REGION"] ?? "DE",
       isConfigured: Boolean(awinApiToken && awinPublisherId),
+    },
+    daisycon: {
+      publisherId: optionalString("DAISYCON_PUBLISHER_ID"),
+      mediaId: optionalString("DAISYCON_MEDIA_ID"),
+      clientId: daisyconClientId,
+      clientSecret: daisyconClientSecret,
+      redirectUri:
+        process.env["DAISYCON_REDIRECT_URI"] ??
+        `${process.env["PUBLIC_BASE_URL"] ?? "http://localhost:3000"}/oauth/daisycon/callback`,
+      refreshToken: daisyconRefreshToken,
+      isConfigured: Boolean(daisyconClientId && daisyconClientSecret && daisyconRefreshToken),
     },
   };
 }

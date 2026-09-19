@@ -7,6 +7,7 @@ import { healthRoutes } from "./routes/health.js";
 import { searchRoutes } from "./routes/search.js";
 import { clickRoutes } from "./routes/click.js";
 import { adminRoutes } from "./routes/admin.js";
+import { daisyconOAuthRoutes } from "./routes/daisycon-oauth.js";
 import { providerRegistry } from "./providers/registry.js";
 import { DemoProvider } from "./providers/demo-provider.js";
 import { AmazonProvider } from "./providers/amazon-provider.js";
@@ -48,6 +49,7 @@ export async function buildApp(): Promise<FastifyInstance> {
   await app.register(searchRoutes);
   await app.register(clickRoutes);
   await app.register(adminRoutes);
+  await app.register(daisyconOAuthRoutes);
 
   return app;
 }
