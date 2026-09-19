@@ -1,4 +1,3 @@
-import { randomUUID } from "node:crypto";
 import type {
   Offer,
   PriceProvider,
@@ -171,7 +170,16 @@ export class DemoProvider implements PriceProvider {
     const now = new Date().toISOString();
     for (const item of DEMO_CATALOG) {
       for (const merchantOffer of item.offers) {
-        const offerId = `demo_${randomUUID()}`;
+        // Deterministic, not random: search results get cached (see
+        // routes/search.ts's Redis cache.wrap, config.cacheTtlSeconds),
+        // and a service restart or redeploy creates a fresh DemoProvider
+        // instance. A random id here would mean a cached search response
+        // survives the restart with offer ids the new instance's
+        // offersById map never generated - "Offer not found" on click,
+        // even though the offer conceptually still exists. ean + the
+        // per-merchant urlSlug are both static catalog data, so this id
+        // is stable across restarts.
+        const offerId = `demo_${item.ean}-${merchantOffer.urlSlug}`;
         const total = Math.round((merchantOffer.price + merchantOffer.shipping) * 100) / 100;
         const offer: Offer = {
           offerId,
