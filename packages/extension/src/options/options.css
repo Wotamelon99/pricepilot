@@ -41,6 +41,12 @@ body {
   margin-bottom: 4px;
 }
 
+.pp-logo {
+  vertical-align: middle;
+  margin-right: 6px;
+  border-radius: 4px;
+}
+
 .pp-options .pp-subtitle {
   color: var(--muted);
   margin-top: 0;

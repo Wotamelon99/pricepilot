@@ -4,6 +4,7 @@ import { buildClickUrl } from "../../api/backend-client.js";
 import { getSettings } from "../../storage/settings.js";
 import { productHistoryKey, recordPricePoint } from "../../storage/price-history.js";
 import { excludeCurrentSiteOffers } from "../../shared/current-site-offer.js";
+import { LOGO_URL } from "../../shared/logo.js";
 
 export interface OverlayProps {
   readonly product: DetectedProduct;
@@ -181,7 +182,9 @@ export function Overlay({ product, onClose }: OverlayProps): JSX.Element | null 
 function Header({ onClose }: { onClose: () => void }): JSX.Element {
   return (
     <div className="pp-header">
-      <span className="pp-brand">🧭 PricePilot</span>
+      <span className="pp-brand">
+        <img src={LOGO_URL} alt="" width={18} height={18} className="pp-logo" /> PricePilot
+      </span>
       <button
         type="button"
         className="pp-close"

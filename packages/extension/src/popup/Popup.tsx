@@ -9,6 +9,7 @@ import {
 } from "../storage/settings.js";
 import { getPriceHistory, productHistoryKey, type PriceHistoryPoint } from "../storage/price-history.js";
 import { excludeCurrentSiteOffers } from "../shared/current-site-offer.js";
+import { LOGO_URL } from "../shared/logo.js";
 
 type Phase =
   | { status: "loading" }
@@ -89,7 +90,9 @@ export function Popup(): JSX.Element {
   return (
     <div className="pp-app">
       <div className="pp-topbar">
-        <h1>🧭 PricePilot</h1>
+        <h1>
+          <img src={LOGO_URL} alt="" width={20} height={20} className="pp-logo" /> PricePilot
+        </h1>
       </div>
 
       <div className="pp-section">

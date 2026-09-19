@@ -7,6 +7,7 @@ import {
   type PricePilotSettings,
 } from "../storage/settings.js";
 import { clearAllPriceHistory } from "../storage/price-history.js";
+import { LOGO_URL } from "../shared/logo.js";
 
 const MERCHANT_LABELS: Record<(typeof DEFAULT_MERCHANTS)[number], string> = {
   "amazon.de": "Amazon.de",
@@ -48,7 +49,9 @@ export function Options(): JSX.Element {
 
   return (
     <div className="pp-options">
-      <h1>🧭 PricePilot – Einstellungen</h1>
+      <h1>
+        <img src={LOGO_URL} alt="" width={20} height={20} className="pp-logo" /> PricePilot – Einstellungen
+      </h1>
       <p className="pp-subtitle">
         PricePilot ist und bleibt für dich 100% kostenlos. Wir finanzieren uns ausschließlich über
         Affiliate-Provisionen der Händler, ohne dass dir dadurch Mehrkosten entstehen.
