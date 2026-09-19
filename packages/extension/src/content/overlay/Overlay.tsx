@@ -3,6 +3,7 @@ import type { DetectedProduct, Money, SearchResponse } from "../../shared/types.
 import { buildClickUrl } from "../../api/backend-client.js";
 import { getSettings } from "../../storage/settings.js";
 import { productHistoryKey, recordPricePoint } from "../../storage/price-history.js";
+import { excludeCurrentSiteOffers } from "../../shared/current-site-offer.js";
 
 export interface OverlayProps {
   readonly product: DetectedProduct;
@@ -20,6 +21,7 @@ function formatMoney(money: Money): string {
     money.amount,
   );
 }
+
 
 export function Overlay({ product, onClose }: OverlayProps): JSX.Element | null {
   const [state, setState] = useState<LoadState>({ status: "loading" });
@@ -51,14 +53,18 @@ export function Overlay({ product, onClose }: OverlayProps): JSX.Element | null 
             return;
           }
 
-          if (response.data.resultCount === 0) {
+          // Drop offers from the very site the user is already on, and
+          // any result group that leaves empty - see current-site-offer.ts.
+          const filteredResults = excludeCurrentSiteOffers(response.data.results, product.pageUrl);
+
+          if (filteredResults.length === 0) {
             setState({ status: "empty" });
             return;
           }
 
-          setState({ status: "ready", data: response.data });
+          setState({ status: "ready", data: { ...response.data, results: filteredResults } });
 
-          const best = response.data.results[0];
+          const best = filteredResults[0];
           const bestOffer = best?.offers[0];
           if (best && bestOffer) {
             void recordPricePoint(productHistoryKey(product.identity), {
@@ -123,7 +129,11 @@ export function Overlay({ product, onClose }: OverlayProps): JSX.Element | null 
   if (!group) return null;
 
   const displayedTotal = product.displayedPrice;
-  const cheapest = group.cheapestTotal;
+  // Not group.cheapestTotal: that's computed server-side over the
+  // *unfiltered* offers, and could be the current-site offer we just
+  // filtered out above. group.offers is still cheapest-first after
+  // filtering, so its own first entry is the right reference now.
+  const cheapest = group.offers[0]?.totalPrice ?? group.cheapestTotal;
   const savings =
     displayedTotal && displayedTotal.currency === cheapest.currency
       ? Math.max(0, Math.round((displayedTotal.amount - cheapest.amount) * 100) / 100)

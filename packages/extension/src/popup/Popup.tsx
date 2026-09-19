@@ -8,6 +8,7 @@ import {
   type PricePilotSettings,
 } from "../storage/settings.js";
 import { getPriceHistory, productHistoryKey, type PriceHistoryPoint } from "../storage/price-history.js";
+import { excludeCurrentSiteOffers } from "../shared/current-site-offer.js";
 
 type Phase =
   | { status: "loading" }
@@ -59,7 +60,11 @@ export function Popup(): JSX.Element {
       setPhase({ status: "searching", product });
 
       try {
-        const data = await searchProduct(currentSettings.backendBaseUrl, product);
+        const rawData = await searchProduct(currentSettings.backendBaseUrl, product);
+        // Drop offers from the very site the user is already on - see
+        // shared/current-site-offer.ts.
+        const results = excludeCurrentSiteOffers(rawData.results, product.pageUrl);
+        const data: SearchResponse = { ...rawData, results, resultCount: results.length };
         const history = await getPriceHistory(productHistoryKey(product.identity));
         setPhase({ status: "ready", product, data, history });
       } catch (err) {
