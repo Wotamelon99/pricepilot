@@ -135,10 +135,16 @@ export function Overlay({ product, onClose }: OverlayProps): JSX.Element | null 
   // filtered out above. group.offers is still cheapest-first after
   // filtering, so its own first entry is the right reference now.
   const cheapest = group.offers[0]?.totalPrice ?? group.cheapestTotal;
-  const savings =
-    displayedTotal && displayedTotal.currency === cheapest.currency
-      ? Math.max(0, Math.round((displayedTotal.amount - cheapest.amount) * 100) / 100)
-      : undefined;
+  const sameCurrency = displayedTotal && displayedTotal.currency === cheapest.currency;
+  const savings = sameCurrency
+    ? Math.max(0, Math.round((displayedTotal.amount - cheapest.amount) * 100) / 100)
+    : undefined;
+  // The reverse case matters just as much as finding a better deal: if
+  // nothing found elsewhere beats the page's own price, staying silent
+  // about it just shows a list of worse offers with no context - a user
+  // could easily read that as "maybe check these out" instead of "you're
+  // already getting the best price".
+  const isAlreadyBest = sameCurrency && displayedTotal.amount <= cheapest.amount;
 
   // Show a compact list, cheapest first (already sorted by the backend).
   const offers = group.offers.slice(0, 5);
@@ -152,6 +158,11 @@ export function Overlay({ product, onClose }: OverlayProps): JSX.Element | null 
             <div className="pp-savings">
               <span className="pp-savings-amount">Spare {formatMoney({ amount: savings, currency: cheapest.currency })}</span>
               <span className="pp-savings-label">gegenüber {formatMoney(displayedTotal)}</span>
+            </div>
+          ) : isAlreadyBest ? (
+            <div className="pp-best-price">
+              <span className="pp-best-price-icon">✓</span>
+              <span>Bestpreis – hier bekommst du es schon am günstigsten</span>
             </div>
           ) : null}
 
