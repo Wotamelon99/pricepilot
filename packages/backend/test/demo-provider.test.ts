@@ -19,7 +19,7 @@ describe("DemoProvider", () => {
     const provider = new DemoProvider();
     const result = await provider.searchProduct({ text: "Ryzen 7 9800X3D" });
     const merchants = new Set(result.offers.map((o) => o.merchantName));
-    expect(merchants.size).toBeGreaterThanOrEqual(3);
+    expect(merchants.size).toBeGreaterThanOrEqual(2);
   });
 
   it("does not match a different, cheaper variant that shares generic words", async () => {
@@ -57,9 +57,9 @@ describe("DemoProvider", () => {
 
   it("matches by EAN", async () => {
     const provider = new DemoProvider();
-    const result = await provider.searchProduct({ ean: "8806094967747" });
+    const result = await provider.searchProduct({ ean: "8806094215038" });
     expect(result.offers.length).toBeGreaterThan(0);
-    expect(result.offers.every((o) => o.identity.ean === "8806094967747")).toBe(true);
+    expect(result.offers.every((o) => o.identity.ean === "8806094215038")).toBe(true);
   });
 
   it("getProduct returns a previously indexed offer by id", async () => {

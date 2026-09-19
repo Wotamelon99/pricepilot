@@ -20,42 +20,89 @@ interface DemoCatalogItem {
     readonly price: number;
     readonly shipping: number;
     readonly inStock: boolean;
-    readonly urlSlug: string;
+    /** The merchant's real, live product page - see the module comment. */
+    readonly productUrl: string;
   }>;
 }
 
 /**
- * Static, realistic German electronics/PC-hardware catalog used to power
- * the app end-to-end before any real affiliate credentials are configured.
- * Prices are illustrative EUR street prices as of early 2026, not live data.
+ * A small, hand-curated set of real German electronics/PC-hardware
+ * products, used to power comparisons before any affiliate network has
+ * approved this account for its real merchant programmes (see
+ * awin-feed-sync.ts / daisycon-oauth.ts for that path, which scales
+ * automatically once approvals land).
+ *
+ * Every price, EAN, MPN and product URL below was looked up by hand at
+ * Alternate.de and Mindfactory.de (captured 2026-09-19) - this is
+ * publicly-visible data a person read off the page, not scraped
+ * automatically, and the links are plain, non-affiliate links: no
+ * tracking parameters, no commission. That's the deliberate trade-off
+ * here - showing a real price and a real, working link a user can
+ * actually buy from is worth more than a technically-monetizable but
+ * fabricated one, even before this account earns anything from it.
+ *
+ * The real trade-off to know about: unlike an automated feed, nobody
+ * refreshes these prices on its own. They will drift out of date and
+ * need a manual re-check periodically - this is a stopgap, not a
+ * long-term data source.
  */
 const DEMO_CATALOG: DemoCatalogItem[] = [
   {
-    title: "NVIDIA GeForce RTX 5070 Founders Edition 12GB GDDR7",
-    brand: "NVIDIA",
-    manufacturer: "NVIDIA",
-    mpn: "RTX5070-FE-12G",
-    ean: "0810006812345",
+    title: "ASUS GeForce RTX 5070 PRIME OC 12GB GDDR7",
+    brand: "ASUS",
+    manufacturer: "ASUS",
+    mpn: "90YV0M10-M0NA00",
+    ean: "4711387837825",
     category: "Gaming Hardware",
     model: "RTX 5070",
     offers: [
-      { merchantName: "Mindfactory", price: 599.0, shipping: 4.99, inStock: true, urlSlug: "nvidia-geforce-rtx-5070-fe" },
-      { merchantName: "Alternate", price: 609.9, shipping: 0, inStock: true, urlSlug: "nvidia-rtx-5070-founders-edition" },
-      { merchantName: "Amazon.de", price: 619.0, shipping: 0, inStock: true, urlSlug: "dp/B0DEMORTX5070" },
+      {
+        merchantName: "Alternate",
+        price: 862.0,
+        shipping: 0,
+        inStock: true,
+        productUrl: "https://www.alternate.de/ASUS/GeForce-RTX-5070-PRIME-OC-Grafikkarte/html/product/100117271",
+      },
+      {
+        merchantName: "Mindfactory",
+        price: 929.98,
+        shipping: 0,
+        inStock: true,
+        productUrl:
+          "https://www.mindfactory.de/product_info.php/search/true/12GB-Asus-GeForce-RTX-5070-Prime-OC-Aktiv-PCIe-5-0-x16--Ret_1615573.html",
+      },
     ],
   },
   {
-    title: "NVIDIA GeForce RTX 5060 Ti 16GB GDDR7",
-    brand: "NVIDIA",
-    manufacturer: "NVIDIA",
-    mpn: "RTX5060TI-16G",
-    ean: "0810006812369",
+    title: "ASUS GeForce RTX 5060 Ti DUAL OC 16GB GDDR7",
+    brand: "ASUS",
+    manufacturer: "ASUS",
+    mpn: "90YV0MH0-M0NA00",
+    ean: "4711387994306",
     category: "Gaming Hardware",
     model: "RTX 5060 Ti",
     offers: [
-      { merchantName: "Mindfactory", price: 439.0, shipping: 4.99, inStock: true, urlSlug: "nvidia-geforce-rtx-5060-ti-16gb" },
-      { merchantName: "Alternate", price: 429.9, shipping: 0, inStock: false, urlSlug: "nvidia-rtx-5060-ti-16gb" },
-      { merchantName: "Amazon.de", price: 449.0, shipping: 0, inStock: true, urlSlug: "dp/B0DEMORTX5060TI" },
+      {
+        // Aktionspreis (limited-time) when captured - re-check before
+        // trusting this one for long, more likely than the others here
+        // to have moved.
+        merchantName: "Alternate",
+        price: 659.0,
+        shipping: 0,
+        inStock: true,
+        productUrl: "https://www.alternate.de/ASUS/GeForce-RTX-5060-Ti-DUAL-OC-16GB-Grafikkarte/html/product/100124310",
+      },
+      {
+        // A different AIB card (Palit, not ASUS) - Mindfactory didn't have
+        // the exact ASUS SKU in stock at capture time. Same GPU/VRAM class,
+        // not the identical part number as the Alternate offer above.
+        merchantName: "Mindfactory",
+        price: 799.0,
+        shipping: 0,
+        inStock: true,
+        productUrl:
+          "https://www.mindfactory.de/product_info.php/search/true/16GB-Palit-GeForce-RTX-5060-Ti-Infinity-3-OC-Aktiv-PCIe-5-0_1616407.html",
+      },
     ],
   },
   {
@@ -63,43 +110,80 @@ const DEMO_CATALOG: DemoCatalogItem[] = [
     brand: "AMD",
     manufacturer: "AMD",
     mpn: "100-100001084WOF",
-    ean: "0730143314935",
+    ean: "0730143315289",
     category: "PC Hardware",
     model: "Ryzen 7 9800X3D",
     offers: [
-      { merchantName: "Mindfactory", price: 479.0, shipping: 4.99, inStock: true, urlSlug: "amd-ryzen-7-9800x3d" },
-      { merchantName: "Alternate", price: 469.0, shipping: 0, inStock: true, urlSlug: "amd-ryzen-7-9800x3d-box" },
-      { merchantName: "Amazon.de", price: 489.99, shipping: 0, inStock: true, urlSlug: "dp/B0DEMO9800X3D" },
-      { merchantName: "Cyberport", price: 474.0, shipping: 5.99, inStock: true, urlSlug: "amd-ryzen-7-9800x3d-cyberport" },
+      {
+        merchantName: "Alternate",
+        price: 404.0,
+        shipping: 0,
+        inStock: true,
+        productUrl: "https://www.alternate.de/AMD/Ryzen-7-9800X3D-Prozessor/html/product/100093605",
+      },
+      {
+        // "Tray (open Box)" - a cheaper packaging/condition variant, not
+        // the identical retail-boxed unit as the Alternate offer above.
+        merchantName: "Mindfactory",
+        price: 399.0,
+        shipping: 0,
+        inStock: true,
+        productUrl:
+          "https://www.mindfactory.de/product_info.php/search/true/AMD-Ryzen-7-9800X3D-8x-4-70GHz-So-AM5-TRAY--open-Box-_1596199.html",
+      },
     ],
   },
   {
-    title: "Samsung 990 Pro 2TB NVMe SSD PCIe 4.0",
+    title: "Samsung 990 PRO 2TB NVMe SSD PCIe 4.0",
     brand: "Samsung",
     manufacturer: "Samsung",
     mpn: "MZ-V9P2T0BW",
-    ean: "8806094967747",
+    ean: "8806094215038",
     category: "Computer Accessories",
     model: "990 Pro 2TB",
     offers: [
-      { merchantName: "Mindfactory", price: 159.0, shipping: 4.99, inStock: true, urlSlug: "samsung-990-pro-2tb" },
-      { merchantName: "Alternate", price: 154.9, shipping: 0, inStock: true, urlSlug: "samsung-ssd-990-pro-2tb" },
-      { merchantName: "Amazon.de", price: 169.99, shipping: 0, inStock: true, urlSlug: "dp/B0DEMO990PRO2TB" },
-      { merchantName: "Cyberport", price: 157.9, shipping: 0, inStock: true, urlSlug: "samsung-990-pro-2tb-cyberport" },
+      {
+        merchantName: "Alternate",
+        price: 369.0,
+        shipping: 0,
+        inStock: true,
+        productUrl: "https://www.alternate.de/Samsung/990-PRO-2-TB-SSD/html/product/1864243",
+      },
+      {
+        merchantName: "Mindfactory",
+        price: 338.99,
+        shipping: 0,
+        inStock: true,
+        productUrl:
+          "https://www.mindfactory.de/product_info.php/search/true/2TB-Samsung-990-PRO-M-2-PCIe-4-0-3D-NAND-TLC--MZ-V9P2T0BW-_1473218.html",
+      },
     ],
   },
   {
     title: "Kingston FURY Beast 32GB (2x16GB) DDR5-6000 CL30",
     brand: "Kingston",
     manufacturer: "Kingston",
-    mpn: "KF560C30BBK2-32",
-    ean: "0740617329902",
+    mpn: "KF560C30BBEK2-32",
+    ean: "0740617342994",
     category: "Computer Accessories",
     model: "FURY Beast 32GB DDR5-6000",
     offers: [
-      { merchantName: "Mindfactory", price: 89.9, shipping: 4.99, inStock: true, urlSlug: "kingston-fury-beast-32gb-ddr5-6000" },
-      { merchantName: "Alternate", price: 84.9, shipping: 0, inStock: true, urlSlug: "kingston-fury-beast-32gb-6000mhz" },
-      { merchantName: "Amazon.de", price: 94.99, shipping: 0, inStock: true, urlSlug: "dp/B0DEMOFURY32GB" },
+      {
+        merchantName: "Alternate",
+        price: 593.0,
+        shipping: 0,
+        inStock: true,
+        productUrl:
+          "https://www.alternate.de/Kingston-FURY/DIMM-32-GB-DDR5-6000-2x-16-GB-Dual-Kit-Arbeitsspeicher/html/product/100052230",
+      },
+      {
+        merchantName: "Mindfactory",
+        price: 598.99,
+        shipping: 0,
+        inStock: true,
+        productUrl:
+          "https://www.mindfactory.de/product_info.php/search/true/32GB-Kingston-FURY-Beast-schwarz-DDR5-6000-DIMM-CL30-Dual-K_1532154.html",
+      },
     ],
   },
 ];
@@ -157,14 +241,16 @@ function slugMatches(query: string, item: DemoCatalogItem): boolean {
 }
 
 /**
- * DemoProvider: a complete, self-contained mock PriceProvider. It never
- * calls any external network and is always CONFIGURATION_REQUIRED == false
- * so the rest of the system (search, matching, click redirect) is fully
- * exercisable without any real affiliate credentials.
+ * DemoProvider: a small, hand-curated catalog of real products (see the
+ * comment on DEMO_CATALOG above) rather than a live external API. It
+ * never calls any external network at request time and is always
+ * CONFIGURATION_REQUIRED == false, so the rest of the system (search,
+ * matching, click redirect) is fully exercisable without any affiliate
+ * network approval.
  */
 export class DemoProvider implements PriceProvider {
   readonly providerId = "demo";
-  readonly displayName = "PricePilot Demo Catalog";
+  readonly displayName = "PricePilot Curated Catalog";
 
   private readonly offersById = new Map<string, Offer>();
 
@@ -187,9 +273,9 @@ export class DemoProvider implements PriceProvider {
         // survives the restart with offer ids the new instance's
         // offersById map never generated - "Offer not found" on click,
         // even though the offer conceptually still exists. ean + the
-        // per-merchant urlSlug are both static catalog data, so this id
-        // is stable across restarts.
-        const offerId = `demo_${item.ean}-${merchantOffer.urlSlug}`;
+        // merchant name are both static catalog data, so this id is
+        // stable across restarts.
+        const offerId = `demo_${item.ean}-${merchantOffer.merchantName.toLowerCase().replace(/\s+/g, "-")}`;
         const total = Math.round((merchantOffer.price + merchantOffer.shipping) * 100) / 100;
         const offer: Offer = {
           offerId,
@@ -209,16 +295,7 @@ export class DemoProvider implements PriceProvider {
           shipping: { amount: merchantOffer.shipping, currency: CURRENCY },
           totalPrice: { amount: total, currency: CURRENCY },
           inStock: merchantOffer.inStock,
-          // A fabricated domain like "demo.pricepilot.local" doesn't
-          // resolve to anything - a Chrome Web Store reviewer (or an
-          // early real user) clicking a demo offer's click-through link
-          // would just hit a DNS error, which reads as "broken
-          // extension" rather than "this is demo data". Routing to our
-          // own real, live site instead demonstrates the click-redirect
-          // mechanism actually working end-to-end.
-          productUrl: `https://wotamelon99.github.io/pricepilot/?demo_shop=${encodeURIComponent(
-            merchantOffer.merchantName.toLowerCase().replace(/\s+/g, "-"),
-          )}&demo_product=${encodeURIComponent(merchantOffer.urlSlug)}`,
+          productUrl: merchantOffer.productUrl,
           currency: CURRENCY,
           fetchedAt: now,
           matchConfidence: 1,
@@ -253,10 +330,12 @@ export class DemoProvider implements PriceProvider {
   }
 
   generateAffiliateUrl(offer: Offer): string {
-    // Demo offers are not real affiliate links; they resolve to a local
-    // placeholder page so click-through logic can still be tested E2E.
-    const url = new URL(offer.productUrl);
-    url.searchParams.set("demo_ref", "pricepilot");
-    return url.toString();
+    // These are real merchant product pages, but plain links - Alternate
+    // and Mindfactory haven't approved this account's affiliate
+    // application yet (see the Awin applications), so there's no
+    // tracking parameter to legitimately add. Once that approval lands,
+    // this is where the real Awin cread.php-style link would be built
+    // instead (see AwinProvider.generateAffiliateUrl for that pattern).
+    return offer.productUrl;
   }
 }

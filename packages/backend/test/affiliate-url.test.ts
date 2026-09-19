@@ -46,10 +46,9 @@ describe("AwinProvider.generateAffiliateUrl", () => {
 });
 
 describe("DemoProvider.generateAffiliateUrl", () => {
-  it("adds a demo_ref marker without breaking the URL", () => {
+  it("returns the real merchant URL unmodified (no affiliate approval yet, so no tracking param to add)", () => {
     const provider = new DemoProvider();
-    const url = provider.generateAffiliateUrl(makeOffer("https://demo.pricepilot.local/store/item"));
-    const parsed = new URL(url);
-    expect(parsed.searchParams.get("demo_ref")).toBe("pricepilot");
+    const realUrl = "https://www.alternate.de/Samsung/990-PRO-2-TB-SSD/html/product/1864243";
+    expect(provider.generateAffiliateUrl(makeOffer(realUrl))).toBe(realUrl);
   });
 });
