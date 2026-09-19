@@ -199,9 +199,16 @@ export class DemoProvider implements PriceProvider {
           shipping: { amount: merchantOffer.shipping, currency: CURRENCY },
           totalPrice: { amount: total, currency: CURRENCY },
           inStock: merchantOffer.inStock,
-          productUrl: `https://demo.pricepilot.local/${merchantOffer.merchantName
-            .toLowerCase()
-            .replace(/\s+/g, "-")}/${merchantOffer.urlSlug}`,
+          // A fabricated domain like "demo.pricepilot.local" doesn't
+          // resolve to anything - a Chrome Web Store reviewer (or an
+          // early real user) clicking a demo offer's click-through link
+          // would just hit a DNS error, which reads as "broken
+          // extension" rather than "this is demo data". Routing to our
+          // own real, live site instead demonstrates the click-redirect
+          // mechanism actually working end-to-end.
+          productUrl: `https://wotamelon99.github.io/pricepilot/?demo_shop=${encodeURIComponent(
+            merchantOffer.merchantName.toLowerCase().replace(/\s+/g, "-"),
+          )}&demo_product=${encodeURIComponent(merchantOffer.urlSlug)}`,
           currency: CURRENCY,
           fetchedAt: now,
           matchConfidence: 1,
