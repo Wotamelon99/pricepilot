@@ -107,13 +107,44 @@ const DEMO_CATALOG: DemoCatalogItem[] = [
 
 const CURRENCY = "EUR";
 
-function slugMatches(query: string, item: DemoCatalogItem): boolean {
-  const haystack = `${item.title} ${item.brand} ${item.model} ${item.mpn}`.toLowerCase();
-  return query
+// Common short filler words that would otherwise dilute the match ratio
+// below without adding any real matching signal.
+const STOPWORDS = new Set(["der", "die", "das", "und", "für", "mit", "auf", "von", "im", "in", "zu"]);
+
+/** Lowercases, strips punctuation Amazon/Otto/etc. titles use as separators, and drops filler tokens. */
+function tokenize(text: string): string[] {
+  return text
     .toLowerCase()
+    .replace(/[,.;:()]/g, " ")
     .split(/\s+/)
     .filter(Boolean)
-    .every((term) => haystack.includes(term));
+    .filter((token) => token.length > 2 || /\d/.test(token))
+    .filter((token) => !STOPWORDS.has(token));
+}
+
+/**
+ * Real product titles extracted from a merchant page (e.g. Amazon's,
+ * which often run 100+ characters with marketing copy, dimensions, and
+ * colour/variant text) essentially never contain every word of this
+ * catalog's short reference titles verbatim, and vice versa. Matching on
+ * word *overlap* instead - most of the query's meaningful tokens (brand,
+ * model number, capacity, etc.) show up somewhere in the catalog item -
+ * is a much closer approximation of "same product" for that kind of
+ * input, without requiring exact-string agreement.
+ */
+function slugMatches(query: string, item: DemoCatalogItem): boolean {
+  const haystack = new Set(tokenize(`${item.title} ${item.brand} ${item.model} ${item.mpn}`));
+  const queryTokens = tokenize(query);
+  if (queryTokens.length === 0) return false;
+
+  const matched = queryTokens.filter((token) => haystack.has(token)).length;
+  // A short, precise query (e.g. "RTX 5070") must match in full - no
+  // partial credit, so it can't coincidentally match a different model
+  // in the same family (RTX 5060 Ti). A long, noisy real-world title
+  // instead needs a decent *absolute* number of overlapping tokens as
+  // well as a decent ratio, so two generic words in common (e.g. brand
+  // + a shared capacity like "32GB") aren't mistaken for a real match.
+  return matched === queryTokens.length || (matched >= 3 && matched / queryTokens.length >= 0.3);
 }
 
 /**
