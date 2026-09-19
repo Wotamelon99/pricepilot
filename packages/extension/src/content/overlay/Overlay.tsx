@@ -147,10 +147,10 @@ export function Overlay({ product, onClose }: OverlayProps): JSX.Element | null 
       <div className="pp-card">
         <Header onClose={onClose} />
         <div className="pp-body">
-          {savings !== undefined && savings > 0 ? (
+          {savings !== undefined && savings > 0 && displayedTotal ? (
             <div className="pp-savings">
               <span className="pp-savings-amount">Spare {formatMoney({ amount: savings, currency: cheapest.currency })}</span>
-              <span className="pp-savings-label">gegenüber dem angezeigten Preis</span>
+              <span className="pp-savings-label">gegenüber {formatMoney(displayedTotal)}</span>
             </div>
           ) : null}
 
