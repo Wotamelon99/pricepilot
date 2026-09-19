@@ -30,6 +30,12 @@ interface AwinProductRow {
 
 const MAX_RESULTS = 20;
 
+/** Builds an Awin cread.php tracked deep link around a raw destination URL. */
+function buildCreadLink(advertiserId: string, destinationUrl: string): string {
+  const destination = encodeURIComponent(destinationUrl);
+  return `https://www.awin1.com/cread.php?awinmid=${advertiserId}&awinaffid=${config.awin.publisherId}&clickref=pricepilot&p=${destination}`;
+}
+
 /**
  * Awin affiliate network provider.
  *
@@ -103,8 +109,11 @@ export class AwinProvider implements PriceProvider {
       // Not a valid absolute URL - fall through to build one below.
     }
 
-    const destination = encodeURIComponent(offer.productUrl);
-    return `https://www.awin1.com/cread.php?awinmid=0&awinaffid=${config.awin.publisherId}&clickref=pricepilot&p=${destination}`;
+    // No known advertiser id for this offer (e.g. it didn't come from
+    // our own awin_products table) - fall back to 0 rather than fail;
+    // this path shouldn't be hit for real awin_products-sourced offers,
+    // since toOffer() always builds a proper cread.php link above.
+    return buildCreadLink("0", offer.productUrl);
   }
 
   private async queryLocalCatalog(query: ProductSearchQuery): Promise<AwinProductRow[]> {
@@ -151,7 +160,11 @@ export class AwinProvider implements PriceProvider {
       shipping: { amount: shipping, currency: row.currency },
       totalPrice: { amount: total, currency: row.currency },
       inStock: row.in_stock,
-      productUrl: row.aw_deep_link,
+      // aw_deep_link, as stored by awin-feed-sync.ts, is the enhanced
+      // feed's raw (non-trackable) product URL - build the actual
+      // tracked cread.php deep link here, where row.merchant_id (the
+      // real Awin advertiser id) is available.
+      productUrl: buildCreadLink(row.merchant_id, row.aw_deep_link),
       ...(row.image_url ? { imageUrl: row.image_url } : {}),
       currency: row.currency,
       fetchedAt: row.synced_at,

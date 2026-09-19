@@ -53,13 +53,14 @@ export interface AmazonConfig {
 
 export interface AwinConfig {
   readonly publisherId: string;
+  // OAuth2 Bearer token from ui.awin.com/awin-api ("API Credentials").
+  // Used against the fixed https://api.awin.com base for both listing
+  // joined programmes and downloading each one's product feed - see
+  // src/lib/awin-feed-sync.ts. Awin has no live cross-advertiser search
+  // API - product data only becomes queryable locally after a feed sync
+  // has imported it.
   readonly apiToken: string | undefined;
   readonly region: string;
-  // Host for the classic "productdata.awin.com" datafeed list/download
-  // endpoints used by the feed-sync job (src/scripts/sync-awin-feeds.ts).
-  // Awin has no live cross-advertiser search API - product data only
-  // becomes queryable locally after a feed sync has imported it.
-  readonly productDataHost: string;
   readonly isConfigured: boolean;
 }
 
@@ -124,7 +125,6 @@ function loadConfig(): AppConfig {
       publisherId: awinPublisherId,
       apiToken: awinApiToken,
       region: process.env["AWIN_REGION"] ?? "DE",
-      productDataHost: process.env["AWIN_PRODUCTDATA_HOST"] ?? "productdata.awin.com",
       isConfigured: Boolean(awinApiToken && awinPublisherId),
     },
   };
