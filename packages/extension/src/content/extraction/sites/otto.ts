@@ -12,7 +12,10 @@ import type { SiteExtractionResult, SiteExtractor } from "./types.js";
  * notice and cannot be verified from this environment.
  */
 
-const TITLE_SELECTORS = ['h1[data-qa="pdp-product-name"]', "h1.pdp_title", "main h1"];
+// No bare "h1"/"main h1" fallback here - that would match a heading on
+// any page (homepage, category listing), misdetecting a product on
+// pages that have none. Only these product-page-specific selectors count.
+const TITLE_SELECTORS = ['h1[data-qa="pdp-product-name"]', "h1.pdp_title"];
 
 const PRICE_SELECTORS = [
   '[data-qa="pdp-price"]',

@@ -13,8 +13,9 @@ function docWithMeta(entries: Array<[string, string]>): Document {
 }
 
 describe("extractOpenGraphProduct", () => {
-  it("reads title, image, price and currency from og/product meta tags", () => {
+  it("reads title, image, price and currency from og/product meta tags on a product page", () => {
     const doc = docWithMeta([
+      ["og:type", "product"],
       ["og:title", "NVIDIA GeForce RTX 5070"],
       ["og:image", "https://example.com/rtx5070.jpg"],
       ["product:price:amount", "599.00"],
@@ -30,10 +31,17 @@ describe("extractOpenGraphProduct", () => {
     expect(result.brand).toBe("NVIDIA");
   });
 
-  it("falls back to document.title when og:title is missing", () => {
-    const doc = document.implementation.createHTMLDocument("Fallback Title");
+  it("ignores og:title on a non-product page, even with document.title set", () => {
+    // Regression test: a page's og:title (or, before this was fixed, even
+    // the plain <title> tag as a last-resort fallback) is not itself
+    // evidence of being a product page - every page has one of these,
+    // including a homepage or category listing. Without gating on
+    // og:type=product, any such page was misdetected as "a product",
+    // popping the comparison overlay where there was nothing to compare.
+    const doc = docWithMeta([["og:title", "Amazon.de: Günstige Preise für Elektronik & mehr"]]);
+    doc.title = "Amazon.de: Günstige Preise für Elektronik & mehr";
     const result = extractOpenGraphProduct(doc);
-    expect(result.title).toBe("Fallback Title");
+    expect(result.title).toBeUndefined();
   });
 
   it("handles a German-formatted price amount with a comma decimal", () => {

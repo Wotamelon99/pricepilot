@@ -13,7 +13,10 @@ import type { SiteExtractionResult, SiteExtractor } from "./types.js";
 
 const SKU_URL_PATTERN = /\/(\d{7,})(?:\/|$|\?)/;
 
-const TITLE_SELECTORS = ['h1[data-test="product-title"]', "h1"];
+// No bare "h1" fallback - that would match any heading on any page
+// (homepage, category listing), misdetecting a product where there is
+// none. Only this product-page-specific selector counts.
+const TITLE_SELECTORS = ['h1[data-test="product-title"]'];
 
 const PRICE_SELECTORS = ['[data-test="branded-price-whole-price"]', ".price", '[itemprop="price"]'];
 

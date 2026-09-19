@@ -23,13 +23,21 @@ function metaContent(doc: Document, selector: string): string | undefined {
 }
 
 export function extractOpenGraphProduct(doc: Document = document): OpenGraphProduct {
+  // Gate on og:type=product rather than just "an og:title exists" - every
+  // page on the web has a title (down to the bare <title> tag), so without
+  // this check any non-product page (a homepage, a category listing) would
+  // be misdetected as a product too. See identity.ts: a truthy `title` here
+  // is what triggers the comparison overlay to mount at all.
+  const ogType = metaContent(doc, 'meta[property="og:type"]');
+  const isProductPage = ogType === "product" || ogType === "product.item";
+
   const priceAmountRaw =
     metaContent(doc, 'meta[property="product:price:amount"]') ??
     metaContent(doc, 'meta[property="og:price:amount"]');
   const priceAmount = priceAmountRaw ? Number.parseFloat(priceAmountRaw.replace(",", ".")) : undefined;
 
   return {
-    title: metaContent(doc, 'meta[property="og:title"]') ?? (doc.title || undefined),
+    title: isProductPage ? metaContent(doc, 'meta[property="og:title"]') : undefined,
     image: metaContent(doc, 'meta[property="og:image"]'),
     priceAmount: priceAmount !== undefined && !Number.isNaN(priceAmount) ? priceAmount : undefined,
     priceCurrency:
