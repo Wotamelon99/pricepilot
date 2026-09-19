@@ -22,6 +22,19 @@ describe("DemoProvider", () => {
     expect(merchants.size).toBeGreaterThanOrEqual(3);
   });
 
+  it("does not match a different, cheaper variant that shares generic words", async () => {
+    // Regression test: "Samsung SSD 990" (the plain, cheaper model) is a
+    // different, real product from the catalog's "Samsung 990 Pro 2TB" -
+    // they share enough generic words (Samsung, SSD, NVMe, PCIe, 4.0) to
+    // look like a match on word-overlap alone, but showing the Pro's
+    // prices for the non-Pro product would be a real accuracy bug.
+    const provider = new DemoProvider();
+    const result = await provider.searchProduct({
+      text: "Samsung SSD 990, Interne M.2 NVMe SSD Festplatte, 2TB, PCIe 4.0 x4",
+    });
+    expect(result.offers).toHaveLength(0);
+  });
+
   it("returns empty results for an unmatched query", async () => {
     const provider = new DemoProvider();
     const result = await provider.searchProduct({ text: "totally nonexistent gizmo 12345" });

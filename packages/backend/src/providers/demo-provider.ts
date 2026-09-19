@@ -121,29 +121,45 @@ function tokenize(text: string): string[] {
     .filter((token) => !STOPWORDS.has(token));
 }
 
+// Pure capacity/speed/memory-type specs: safe to drop from what a query
+// must contain, since a short query omitting them (e.g. "Kingston FURY
+// Beast" without "32GB 6000MHz") isn't ambiguous *in this catalog* - only
+// one capacity/speed variant of each item exists here. Unlike these, a
+// word such as "Pro" or "Ti" is part of the *product's identity*, not a
+// spec: "990" and "990 Pro" are different products at different prices,
+// so that word must not be optional.
+const SPEC_ONLY_TOKENS = new Set([
+  "2tb", "1tb", "4tb", "500gb", "12gb", "16gb", "32gb", "6000mhz", "ddr5", "ddr4", "gddr7",
+]);
+
+/**
+ * The subset of an item's model that actually identifies *which* product
+ * this is, as opposed to which capacity/speed variant - see
+ * SPEC_ONLY_TOKENS above.
+ */
+function requiredModelTokens(item: DemoCatalogItem): string[] {
+  return tokenize(item.model).filter((token) => !SPEC_ONLY_TOKENS.has(token));
+}
+
 /**
  * Real product titles extracted from a merchant page (e.g. Amazon's,
  * which often run 100+ characters with marketing copy, dimensions, and
- * colour/variant text) essentially never contain every word of this
- * catalog's short reference titles verbatim, and vice versa. Matching on
- * word *overlap* instead - most of the query's meaningful tokens (brand,
- * model number, capacity, etc.) show up somewhere in the catalog item -
- * is a much closer approximation of "same product" for that kind of
- * input, without requiring exact-string agreement.
+ * colour/variant text) essentially never contain this catalog's short
+ * reference title verbatim, so matching can't require exact-string
+ * agreement. But matching on *any* sufficient word overlap is also wrong:
+ * a real "Samsung SSD 990" (the plain, cheaper model) shares enough
+ * generic words with the catalog's "Samsung 990 Pro 2TB" (Samsung, SSD,
+ * NVMe, PCIe, 4.0) to look like a match on overlap alone, even though
+ * "Pro" - the one word that actually distinguishes them - is missing.
+ * Requiring every *identity* word of the model (not just enough of them)
+ * is what catches that: no "pro" in the query means no match.
  */
 function slugMatches(query: string, item: DemoCatalogItem): boolean {
-  const haystack = new Set(tokenize(`${item.title} ${item.brand} ${item.model} ${item.mpn}`));
-  const queryTokens = tokenize(query);
-  if (queryTokens.length === 0) return false;
+  const queryTokens = new Set(tokenize(query));
+  if (queryTokens.size === 0) return false;
 
-  const matched = queryTokens.filter((token) => haystack.has(token)).length;
-  // A short, precise query (e.g. "RTX 5070") must match in full - no
-  // partial credit, so it can't coincidentally match a different model
-  // in the same family (RTX 5060 Ti). A long, noisy real-world title
-  // instead needs a decent *absolute* number of overlapping tokens as
-  // well as a decent ratio, so two generic words in common (e.g. brand
-  // + a shared capacity like "32GB") aren't mistaken for a real match.
-  return matched === queryTokens.length || (matched >= 3 && matched / queryTokens.length >= 0.3);
+  const required = requiredModelTokens(item);
+  return required.length > 0 && required.every((token) => queryTokens.has(token));
 }
 
 /**
