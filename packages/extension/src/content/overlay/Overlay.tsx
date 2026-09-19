@@ -170,7 +170,11 @@ export function Overlay({ product, onClose }: OverlayProps): JSX.Element | null 
             {offers.map((offer, index) => (
               <li key={offer.offerId}>
                 <a
-                  className={`pp-offer${index === 0 ? " pp-offer-best" : ""}`}
+                  // Green "best" highlight only when this offer actually
+                  // beats the page's own price - if the page itself is
+                  // already the cheapest (isAlreadyBest), nothing in this
+                  // list deserves it, no matter how it sorts among itself.
+                  className={`pp-offer${index === 0 && !isAlreadyBest ? " pp-offer-best" : ""}`}
                   href={buildClickUrl(backendBaseUrl, offer.offerId)}
                   target="_blank"
                   rel="noopener noreferrer sponsored"
