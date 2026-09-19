@@ -188,7 +188,10 @@ function Disclosure(): JSX.Element {
   return (
     <p className="pp-disclosure">
       Enthält Affiliate-Links. PricePilot ist für dich kostenlos; wir erhalten ggf. eine Provision,
-      wenn du über einen Link kaufst. <a href="#" onClick={(e) => e.preventDefault()}>Mehr erfahren</a>
+      wenn du über einen Link kaufst.{" "}
+      <a href="https://wotamelon99.github.io/pricepilot/#datenschutz" target="_blank" rel="noopener noreferrer">
+        Mehr erfahren
+      </a>
     </p>
   );
 }

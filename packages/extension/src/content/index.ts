@@ -1,6 +1,7 @@
 import { detectProduct } from "./extraction/identity.js";
 import { mountOverlay, OVERLAY_HOST_ELEMENT_ID } from "./overlay/mount.js";
 import { getSettings, onSettingsChanged } from "../storage/settings.js";
+import { productHistoryKey } from "../storage/price-history.js";
 import { isGetCurrentProductMessage, type GetCurrentProductResponse } from "../shared/messages.js";
 import type { DetectedProduct } from "../shared/types.js";
 
@@ -16,29 +17,47 @@ import type { DetectedProduct } from "../shared/types.js";
  */
 
 let currentUnmount: (() => void) | undefined;
+/** Identity key of the product the overlay is currently mounted for, so a re-detection that finds the *same* product (e.g. another DOM mutation wave while the page is still settling) doesn't tear down and re-fetch a perfectly fine overlay. */
+let currentProductKey: string | undefined;
 let debounceHandle: ReturnType<typeof setTimeout> | undefined;
 /** Last successfully detected product on this tab, regardless of whether the overlay is currently shown - the popup reads this via GetCurrentProductMessage. */
 let lastDetectedProduct: DetectedProduct | undefined;
+
+function unmountOverlay(): void {
+  currentUnmount?.();
+  currentUnmount = undefined;
+  currentProductKey = undefined;
+}
 
 async function runDetectionAndMaybeMount(): Promise<void> {
   const product = detectProduct();
   lastDetectedProduct = product;
 
   if (!product) {
-    currentUnmount?.();
-    currentUnmount = undefined;
+    unmountOverlay();
     return;
   }
 
   const settings = await getSettings();
   if (!settings.overlayEnabled) {
-    currentUnmount?.();
-    currentUnmount = undefined;
+    unmountOverlay();
+    return;
+  }
+
+  const productKey = productHistoryKey(product.identity);
+  if (productKey === currentProductKey) {
+    // Same product as what's already mounted - a page that's still
+    // settling (lazy images, ads, SPA hydration) can trigger several
+    // detection passes within a second or two of load; without this
+    // check each one would tear down and rebuild the overlay from
+    // scratch (fresh "loading" state, fresh backend request), which
+    // looks like the overlay popping up 2-3 times in a row.
     return;
   }
 
   currentUnmount?.();
   currentUnmount = mountOverlay(product).unmount;
+  currentProductKey = productKey;
 }
 
 function scheduleDetection(): void {
