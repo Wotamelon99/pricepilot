@@ -95,7 +95,7 @@ const DEMO_CATALOG: DemoCatalogItem[] = [
     mpn: "KF560C30BBK2-32",
     ean: "0740617329902",
     category: "Computer Accessories",
-    model: "FURY Beast DDR5 32GB 6000MHz",
+    model: "FURY Beast 32GB DDR5-6000",
     offers: [
       { merchantName: "Mindfactory", price: 89.9, shipping: 4.99, inStock: true, urlSlug: "kingston-fury-beast-32gb-ddr5-6000" },
       { merchantName: "Alternate", price: 84.9, shipping: 0, inStock: true, urlSlug: "kingston-fury-beast-32gb-6000mhz" },
@@ -112,33 +112,21 @@ const STOPWORDS = new Set(["der", "die", "das", "und", "für", "mit", "auf", "vo
 
 /** Lowercases, strips punctuation Amazon/Otto/etc. titles use as separators, and drops filler tokens. */
 function tokenize(text: string): string[] {
-  return text
-    .toLowerCase()
-    .replace(/[,.;:()]/g, " ")
-    .split(/\s+/)
-    .filter(Boolean)
-    .filter((token) => token.length > 2 || /\d/.test(token))
-    .filter((token) => !STOPWORDS.has(token));
-}
-
-// Pure capacity/speed/memory-type specs: safe to drop from what a query
-// must contain, since a short query omitting them (e.g. "Kingston FURY
-// Beast" without "32GB 6000MHz") isn't ambiguous *in this catalog* - only
-// one capacity/speed variant of each item exists here. Unlike these, a
-// word such as "Pro" or "Ti" is part of the *product's identity*, not a
-// spec: "990" and "990 Pro" are different products at different prices,
-// so that word must not be optional.
-const SPEC_ONLY_TOKENS = new Set([
-  "2tb", "1tb", "4tb", "500gb", "12gb", "16gb", "32gb", "6000mhz", "ddr5", "ddr4", "gddr7",
-]);
-
-/**
- * The subset of an item's model that actually identifies *which* product
- * this is, as opposed to which capacity/speed variant - see
- * SPEC_ONLY_TOKENS above.
- */
-function requiredModelTokens(item: DemoCatalogItem): string[] {
-  return tokenize(item.model).filter((token) => !SPEC_ONLY_TOKENS.has(token));
+  return (
+    text
+      .toLowerCase()
+      // Real listings write capacity/speed with a space ("2 TB", "6000 MHz");
+      // this catalog's own data doesn't ("2TB", "6000MHz"). Collapse the
+      // space so both forms tokenize to the same word - otherwise a real
+      // "2 TB" page would never satisfy a required "2tb" token, and the
+      // capacity requirement below would just always fail on live pages.
+      .replace(/(\d)\s+(tb|gb|mb|mhz|ghz)\b/g, "$1$2")
+      .replace(/[,.;:()]/g, " ")
+      .split(/\s+/)
+      .filter(Boolean)
+      .filter((token) => token.length > 2 || /\d/.test(token))
+      .filter((token) => !STOPWORDS.has(token))
+  );
 }
 
 /**
@@ -150,15 +138,21 @@ function requiredModelTokens(item: DemoCatalogItem): string[] {
  * a real "Samsung SSD 990" (the plain, cheaper model) shares enough
  * generic words with the catalog's "Samsung 990 Pro 2TB" (Samsung, SSD,
  * NVMe, PCIe, 4.0) to look like a match on overlap alone, even though
- * "Pro" - the one word that actually distinguishes them - is missing.
- * Requiring every *identity* word of the model (not just enough of them)
- * is what catches that: no "pro" in the query means no match.
+ * "Pro" is missing. The same problem shows up one level down: a real
+ * "Samsung 990 PRO 1TB" page genuinely is a 990 Pro, but at a different
+ * capacity - and therefore a different real price - than the catalog's
+ * 990 Pro *2TB* entry, so "2TB" can't be optional either. There's no
+ * reliable way to tell in general which words of a model name are
+ * "just a spec" versus part of what actually distinguishes one real,
+ * differently-priced product from another - so none of them are treated
+ * as optional: every token of the catalog item's model must be present
+ * in the query for it to count as a match.
  */
 function slugMatches(query: string, item: DemoCatalogItem): boolean {
   const queryTokens = new Set(tokenize(query));
   if (queryTokens.size === 0) return false;
 
-  const required = requiredModelTokens(item);
+  const required = tokenize(item.model);
   return required.length > 0 && required.every((token) => queryTokens.has(token));
 }
 
