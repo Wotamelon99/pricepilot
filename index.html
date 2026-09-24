@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PricePilot – Der kostenlose Preisvergleich beim Online-Shopping</title>
+<meta name="description" content="PricePilot ist eine kostenlose Chrome-Erweiterung, die beim Einkaufen auf Amazon.de, Otto.de, MediaMarkt.de und Saturn.de automatisch zeigt, ob es das Produkt woanders günstiger gibt – inklusive Rabattcodes.">
+<style>
+  :root {
+    --bg: #0f1115;
+    --bg-card: #171a21;
+    --text: #f2f3f5;
+    --text-dim: #9aa1ac;
+    --accent: #4f8cff;
+    --accent-2: #6de3a7;
+    --border: #262a33;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+  header {
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+  .logo {
+    font-weight: 700;
+    font-size: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .logo-badge {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    display: inline-block;
+  }
+  nav a {
+    color: var(--text-dim);
+    text-decoration: none;
+    margin-left: 20px;
+    font-size: 0.95rem;
+  }
+  nav a:hover { color: var(--text); }
+  main {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+  .hero {
+    padding: 64px 0 48px;
+    text-align: center;
+  }
+  .hero h1 {
+    font-size: 2.4rem;
+    margin: 0 0 16px;
+    line-height: 1.25;
+  }
+  .hero p {
+    color: var(--text-dim);
+    font-size: 1.15rem;
+    max-width: 620px;
+    margin: 0 auto 28px;
+  }
+  .badge-row {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+  .pill {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+  }
+  .cta {
+    display: inline-block;
+    background: var(--accent);
+    color: white;
+    text-decoration: none;
+    padding: 12px 28px;
+    border-radius: 10px;
+    font-weight: 600;
+    margin-top: 8px;
+  }
+  .cta.secondary {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+    margin-left: 10px;
+  }
+  section {
+    padding: 40px 0;
+    border-top: 1px solid var(--border);
+  }
+  h2 {
+    font-size: 1.5rem;
+    margin-bottom: 24px;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+  }
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .card h3 {
+    margin: 0 0 8px;
+    font-size: 1.05rem;
+  }
+  .card p {
+    color: var(--text-dim);
+    margin: 0;
+    font-size: 0.95rem;
+  }
+  .steps {
+    counter-reset: step;
+    display: grid;
+    gap: 14px;
+  }
+  .step {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .step-num {
+    flex-shrink: 0;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: var(--accent-2);
+    font-size: 0.9rem;
+  }
+  .merchants {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .merchant {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-weight: 600;
+    color: var(--text-dim);
+  }
+  footer {
+    padding: 32px 0 48px;
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    border-top: 1px solid var(--border);
+  }
+  footer a { color: var(--text-dim); }
+  .disclosure {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 20px;
+    font-size: 0.9rem;
+    color: var(--text-dim);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo"><span class="logo-badge"></span> PricePilot</div>
+  <nav>
+    <a href="#funktionen">Funktionen</a>
+    <a href="#so-funktionierts">So funktioniert's</a>
+    <a href="#datenschutz">Datenschutz</a>
+    <a href="https://chromewebstore.google.com/detail/monhdbhgcleancnkidmgkieedongemcf">Installieren</a>
+  </nav>
+</header>
+
+<main>
+  <div class="hero">
+    <div class="badge-row">
+      <span class="pill">100% kostenlos</span>
+      <span class="pill">Kein Konto nötig</span>
+      <span class="pill">Deutschland / EU</span>
+    </div>
+    <h1>Sofort sehen, ob es woanders günstiger ist.</h1>
+    <p>
+      PricePilot ist eine kostenlose Chrome-Erweiterung, die beim Surfen auf
+      Amazon.de, Otto.de, MediaMarkt.de und Saturn.de automatisch erkennt,
+      welches Produkt du dir ansiehst, und dir in Sekunden zeigt, ob es das
+      Produkt anderswo günstiger gibt – inklusive Rabattcodes der Händler.
+    </p>
+    <a class="cta" href="https://chromewebstore.google.com/detail/monhdbhgcleancnkidmgkieedongemcf" target="_blank" rel="noopener">Kostenlos zu Chrome hinzufügen</a>
+    <a class="cta secondary" href="#so-funktionierts">So funktioniert's</a>
+  </div>
+
+  <section id="funktionen">
+    <h2>Funktionen</h2>
+    <div class="grid">
+      <div class="card">
+        <h3>Automatische Produkterkennung</h3>
+        <p>Erkennt Produkte über EAN, GTIN, ASIN, MPN oder Titel direkt auf der Händlerseite – ganz ohne manuelle Suche.</p>
+      </div>
+      <div class="card">
+        <h3>Live-Preisvergleich</h3>
+        <p>Ein dezentes Fenster zeigt Angebote anderer Händler mit Gesamtpreis inkl. Versand – und erscheint nur, wenn es etwas zu vergleichen gibt.</p>
+      </div>
+      <div class="card">
+        <h3>Rabattcodes inklusive</h3>
+        <p>Endpreis mit Code, Code zum Kopieren und ein Countdown, bis das Angebot endet.</p>
+      </div>
+      <div class="card">
+        <h3>Bestpreis-Hinweis</h3>
+        <p>Gibt es nichts Günstigeres, sagt dir PricePilot das – und du kannst beruhigt bestellen.</p>
+      </div>
+      <div class="card">
+        <h3>Täglich geprüfte Preise</h3>
+        <p>Händlerpreise werden täglich mit den Shop-Seiten abgeglichen. Stimmen sie nicht, wird der Händler automatisch ausgeblendet.</p>
+      </div>
+      <div class="card">
+        <h3>Immer mehr Kategorien</h3>
+        <p>Elektronik &amp; Technik, Haushalt, Garten, Heimkino und mehr – es kommen laufend neue Händler dazu.</p>
+      </div>
+      <div class="card">
+        <h3>Volle Kontrolle</h3>
+        <p>Overlay, Theme und aktive Händler lassen sich jederzeit über die Erweiterungs-Einstellungen anpassen.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="so-funktionierts">
+    <h2>So funktioniert's</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div><strong>Erweiterung installieren</strong><br>Kostenlos aus dem Chrome Web Store, in wenigen Sekunden startklar.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div><strong>Wie gewohnt einkaufen</strong><br>Besuche eine Produktseite bei einem der unterstützten Händler.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div><strong>Vergleich ansehen</strong><br>PricePilot zeigt automatisch, ob es das Produkt günstiger gibt – du entscheidest, wo du kaufst.</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Unterstützte Händler</h2>
+    <div class="merchants">
+      <span class="merchant">Amazon.de</span>
+      <span class="merchant">Otto.de</span>
+      <span class="merchant">MediaMarkt.de</span>
+      <span class="merchant">Saturn.de</span>
+    </div>
+  </section>
+
+  <section id="datenschutz">
+    <h2>Datenschutz &amp; Finanzierung</h2>
+    <div class="disclosure">
+      <p>
+        PricePilot führt Preisvergleiche anonym durch – für die Nutzung ist
+        kein Konto erforderlich, und es werden keine personenbezogenen
+        Einkaufsdaten gesammelt oder weiterverkauft.
+      </p>
+      <p style="margin-bottom:0">
+        Die Erweiterung ist zu 100&nbsp;% kostenlos für Nutzer:innen und
+        finanziert sich ausschließlich über Affiliate-Provisionen (u. a. das
+        Amazon-Partnerprogramm), wenn du über einen angezeigten Link
+        einkaufst. Das hat keinen Einfluss auf den Preis, den du zahlst.
+      </p>
+      <p style="margin:1em 0 0">
+        <a href="https://wotamelon99.github.io/pricepilot-legal/">Ausführliche Datenschutzerklärung</a>
+      </p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <p>
+    PricePilot &middot; <a href="https://wotamelon99.github.io/pricepilot-legal/">Datenschutzerklärung</a> &middot; <a href="https://chromewebstore.google.com/detail/monhdbhgcleancnkidmgkieedongemcf">Chrome Web Store</a>
+  </p>
+  <p>Als Amazon-Partner verdient PricePilot an qualifizierten Verkäufen.</p>
+</footer>
+
+</body>
+</html>
